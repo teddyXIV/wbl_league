@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WPBL Fantasy League — Inaugural Season</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap%22 rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1C30;
+    --panel:#182A46;
+    --panel-2:#1F3457;
+    --line:rgba(242,236,221,0.12);
+    --cream:#F2ECDD;
+    --cream-dim:#B9C2D6;
+    --gold:#D4A93A;
+    --bos:#C1622B;
+    --sf:#B23A48;
+    --la:#7A55B8;
+    --ny:#2E7EAE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, rgba(212,169,58,0.08), transparent 60%),
+      var(--navy);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    padding-bottom:60px;
+  }
+  .marquee{
+    background:linear-gradient(180deg,#0B1626,#101E36);
+    border-bottom:3px solid var(--gold);
+    padding:22px 24px 18px;
+    position:sticky; top:0; z-index:20;
+  }
+  .marquee-inner{max-width:1080px;margin:0 auto;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.18em;
+    font-size:11px;
+    color:var(--gold);
+    text-transform:uppercase;
+  }
+  h1.title{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,44px);
+    letter-spacing:.02em;
+    margin:4px 0 2px;
+    text-transform:uppercase;
+  }
+  .sub{color:var(--cream-dim);font-size:13px;}
+  .tabs{
+    display:flex; gap:4px; max-width:1080px; margin:16px auto 0; flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'Oswald',sans-serif;
+    font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+    background:transparent; border:1px solid var(--line); color:var(--cream-dim);
+    padding:9px 16px; border-radius:6px 6px 0 0; cursor:pointer;
+    border-bottom:none;
+  }
+  .tab.active{ background:var(--panel); color:var(--gold); border-color:var(--gold); }
+  main{max-width:1080px; margin:0 auto; padding:22px 24px 0;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:0 8px 8px 8px;
+    padding:22px;
+    margin-bottom:22px;
+  }
+  h2{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.03em;
+    font-size:19px; margin:0 0 4px; color:var(--cream);
+  }
+  p.desc{color:var(--cream-dim); font-size:13px; margin:0 0 16px;}
+  .clock{
+    display:flex; align-items:center; gap:14px; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .clock-num{font-family:'JetBrains Mono',monospace; font-size:26px; color:var(--gold); font-weight:700;}
+  .clock-label{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cream-dim); letter-spacing:.1em; text-transform:uppercase;}
+  .onclock{font-family:'Oswald',sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:.02em;}
+  .team-name-input{
+    background:transparent; border:none; border-bottom:1px dashed var(--line);
+    color:var(--gold); font-family:'Oswald',sans-serif; font-size:18px;
+    padding:2px 0; width:180px; text-transform:uppercase; letter-spacing:.02em;
+  }
+  .team-name-input:focus{outline:none; border-bottom-color:var(--gold);}
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  select, input[type=text]{
+    background:var(--panel-2); color:var(--cream); border:1px solid var(--line);
+    border-radius:6px; padding:7px 10px; font-family:'Inter',sans-serif; font-size:13px;
+  }
+  .player-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px;
+    max-height:420px; overflow-y:auto; padding-right:4px;
+  }
+  .player-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; cursor:pointer; transition:transform .1s, border-color .1s;
+  }
+  .player-card:hover{border-color:var(--gold); transform:translateY(-1px);}
+  .player-name{font-weight:600; font-size:13.5px;}
+  .player-meta{font-size:11px; color:var(--cream-dim); margin-top:2px; display:flex; justify-content:space-between;}
+  .tag{
+    font-family:'JetBrains Mono',monospace; font-size:10px; padding:1px 6px; border-radius:3px;
+    text-transform:uppercase; letter-spacing:.04em; color:#fff;
+  }
+  .tag-BOS{background:var(--bos);} .tag-SF{background:var(--sf);}
+  .tag-LA{background:var(--la);} .tag-NY{background:var(--ny);}
+  .roster-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px;}
+  .roster-card{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:14px;}
+  .roster-card h3{
+    font-family:'Oswald',sans-serif; font-size:15px; text-transform:uppercase;
+    margin:0 0 8px; color:var(--gold); display:flex; justify-content:space-between; align-items:center;
+  }
+  .roster-list{list-style:none; margin:0; padding:0; font-size:12.5px;}
+  .roster-list li{
+    display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--line);
+  }
+  .roster-list li:last-child{border-bottom:none;}
+  .empty-slot{color:var(--cream-dim); font-style:italic; padding:14px 0; text-align:center; font-size:12.5px;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    font-family:'JetBrains Mono',monospace; text-transform:uppercase; font-size:10.5px;
+    letter-spacing:.06em; color:var(--gold); text-align:left; padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{padding:8px 10px; border-bottom:1px solid var(--line); color:var(--cream-dim);}
+  td.strong{color:var(--cream); font-weight:600;}
+  tr:hover td{background:rgba(212,169,58,0.04);}
+  .btn{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.04em;
+    background:var(--gold); color:#0F1C30; border:none; border-radius:6px;
+    padding:9px 16px; font-size:13px; cursor:pointer; font-weight:600;
+  }
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--cream-dim);}
+  .btn:hover{filter:brightness(1.08);}
+  .week-block{margin-bottom:18px;}
+  .week-title{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:14px; color:var(--gold);
+    letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+  .week-title:before{content:''; flex:0 0 18px; height:1px; background:var(--gold);}
+  .matchup-row{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+    padding:10px 14px; margin-bottom:6px;
+  }
+  .mside{display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; border-radius:5px; padding:4px 8px;}
+  .mside.right{flex-direction:row-reverse; text-align:right;}
+  .mside.winner{background:rgba(212,169,58,0.18); font-weight:700; color:var(--gold);}
+  .vs{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cream-dim);}
+  .standings-row{display:grid; grid-template-columns:2fr repeat(3,1fr); font-size:13px;}
+  .footer-note{color:var(--cream-dim); font-size:11.5px; margin-top:8px;}
+  .draft-log{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--cream-dim); max-height:120px; overflow-y:auto; margin-top:12px; border-top:1px solid var(--line); padding-top:10px;}
+  .draft-log div{padding:2px 0;}
+  ::-webkit-scrollbar{width:8px;} ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+</style>
+</head>
+<body>
+ 
+<div class="marquee">
+<div class="marquee-inner">
+<div class="eyebrow">Robin Roberts Stadium · Season 2026 · Inaugural Season</div>
+<h1 class="title">WPBL Fantasy League</h1>
+<div class="sub">8 managers draft from the Boston Hunters, San Francisco Firebells, Los Angeles Queens &amp; New York Heights rosters, then face off head‑to‑head across the real 30‑game schedule.</div>
+</div>
+<div class="tabs" id="tabs"></div>
+</div>
+ 
+<main id="main"></main>
+ 
+<script>
+/* ---------------- DATA ---------------- */
+const REAL_TEAMS = {
+  BOS:{name:"Boston Hunters", color:"var(--bos)"},
+  SF:{name:"San Francisco Firebells", color:"var(--sf)"},
+  LA:{name:"Los Angeles Queens", color:"var(--la)"},
+  NY:{name:"New York Heights", color:"var(--ny)"}
+};
+ 
+const PLAYERS = [
+["Hyeonah Kim","C","BOS"],["Alli Schroder","RHP","BOS"],["Raine Padgham","RHP","BOS"],["Lexi Hastings","LF","BOS"],
+["Kate Blunt","SS","BOS"],["Denver Bryant","2B","BOS"],["Ticara Geldenhuis","OF","BOS"],["Suzuka Yamamoto","SS","BOS"],
+["Maïka Dumais","RHP","BOS"],["Gigi Schiano","RHP","BOS"],["Maria José Valenzuela","IF","BOS"],["Molly Paddison","CF","BOS"],
+["Beth Greenwood","C","BOS"],["Sabrina Robinson","1B","BOS"],["Gabrielle Haas","SS","BOS"],["Paloma Benach","LHP","BOS"],
+["Stephanie Everett","LF","BOS"],["Luciana Moreno","IF","BOS"],["Allie Bebbere","RHP","BOS"],["Emily Baxter","OF","BOS"],
+["Braidy Birdsall","2B","BOS"],["Edith De Leija","3B","BOS"],["Meaghan Houk","IF","BOS"],["Laura Hirai","RHP","BOS"],
+["Olivia Bricker","LHP","BOS"],["Sadie Zion","1B","BOS"],["Nadia Diaz","3B","BOS"],["Nylah Ramirez","RHP","BOS"],
+["Clara Rice","C","BOS"],["Mary Grace O'Neill","CF","BOS"],
+ 
+["Kelsie Whitmore","RHP","SF"],["Amanda Gianelloni","2B","SF"],["Joely Leguizamon","SS","SF"],["Jill Albayati","UTL","SF"],
+["Samantha Gutierrez","C","SF"],["Ayaka Yamamoto","3B","SF"],["Niki Eckert","LHP","SF"],["Andréanne Leblanc","1B","SF"],
+["Jua Park","SS","SF"],["Alexia Jorge","C","SF"],["Ela Day-Bédard","IF","SF"],["Rosi del Castillo","CF","SF"],
+["Liz Gilder","LHP","SF"],["Skylar Kaplan","LF","SF"],["Hinano Beppu","2B","SF"],["Jordan Eyster","CF","SF"],
+["Katie Reynolds","RHP","SF"],["Peyton Coria","RHP","SF"],["Kaija Bazzano","SS","SF"],["Kaelei Kajitani","1B","SF"],
+["Kiley Ingram","RHP","SF"],["Scrappy Hopkins","C","SF"],["Flor Elena Valerio Montoya","RHP","SF"],["Estheoa Segovia","C","SF"],
+["Bella Espinoza-Molina","RF","SF"],["Arwen McCullough","RHP","SF"],["Allie Lacey","2B","SF"],["Micaela Minner","1B","SF"],
+["Kailyn Bearpaw","1B","SF"],
+ 
+["Ayami Sato","RHP","LA"],["Ashton Lansdell","3B","LA"],["Mo'ne Davis","CF","LA"],["Meggie Meidlinger","RHP","LA"],
+["Thaima Maximiliana","SS","LA"],["Jamie Mackay","C","LA"],["Emi Saiki","SS","LA"],["Samaria Benítez","SS","LA"],
+["Maggie Foxx","C","LA"],["Michelle Roche","RHP","LA"],["Suzu Narasaki","CF","LA"],["Caitlin Eynon","SS","LA"],
+["Sarah Edwards","1B","LA"],["Brittany Apgar","CF","LA"],["Leah Cornish","C","LA"],["Juliette Kladko","LHP","LA"],
+["Amira Hondras","2B","LA"],["Sydney Barry","RHP","LA"],["Rio Obitsu","2B","LA"],["Isabella Villarreal","2B","LA"],
+["Elodie O'Sullivan","OF","LA"],["Genevieve Hastings","SS","LA"],["Ayuri Shimano","RHP","LA"],["Luisa Hernandez","1B","LA"],
+["Adelaide Frank","1B","LA"],["Brittany Womack","RF","LA"],["Celicia Wilken","1B","LA"],["Trinity Curtis","RHP","LA"],
+["Addisyn Baird","SS","LA"],
+ 
+["Kylee Lahners","3B","NY"],["Denae Benites","C","NY"],["Rakyung Kim","RHP","NY"],["Valerie Perez","SS","NY"],
+["Jaida Lee","RHP","NY"],["London Studer","1B","NY"],["Keira Izumi","SS","NY"],["Natsuki Yonetani","LF","NY"],
+["Alyssa Zettlemoyer","C","NY"],["Madison Willan","IF","NY"],["Claire Eccles","CF","NY"],["Elodie Ciamarro","C","NY"],
+["Jacqui Reynolds","RHP","NY"],["Diana Ibarra","CF","NY"],["Claire O'Sullivan","RHP","NY"],["McKenna Huff","SS","NY"],
+["Maddison Erwin","RHP","NY"],["Angelis Rivera","RHP","NY"],["Rocio Barajas","RHP","NY"],["Nicole Rivera-Moats","2B","NY"],
+["Katherine Murphy","LF","NY"],["Zoe Falardeau","RHP","NY"],["Adelaide Ziebart","RF","NY"],["Angela Valenzuela","RHP","NY"],
+["Melissa Mayeux","SS","NY"],["Chloe Atkinson","UTL","NY"],["Milanyela Cortez","RHP","NY"],["Abigail Moore","C","NY"],
+["Minseo Park","UTL","NY"],["Sarah Beaulieu","RHP","NY"]
+].map((p,i)=>({id:"p"+i, name:p[0], pos:p[1], team:p[2]}));
+ 
+const SCHEDULE = [
+["Sat, Aug 1","Los Angeles Queens","New York Heights","TBD"],
+["Sun, Aug 2","San Francisco Firebells","Boston Hunters","6:30 PM"],
+["Wed, Aug 5","Boston Hunters","Los Angeles Queens","6:30 PM"],
+["Thu, Aug 6","New York Heights","San Francisco Firebells","6:30 PM"],
+["Fri, Aug 7","San Francisco Firebells","Los Angeles Queens","6:30 PM"],
+["Sat, Aug 8","Boston Hunters","New York Heights","1:00 PM"],
+["Sat, Aug 8","Los Angeles Queens","San Francisco Firebells","6:30 PM"],
+["Sun, Aug 9","New York Heights","Boston Hunters","6:30 PM"],
+["Wed, Aug 12","Los Angeles Queens","San Francisco Firebells","6:30 PM"],
+["Thu, Aug 13","Boston Hunters","New York Heights","6:30 PM"],
+["Fri, Aug 14","Los Angeles Queens","San Francisco Firebells","TBD"],
+["Sat, Aug 15","San Francisco Firebells","New York Heights","1:00 PM"],
+["Sat, Aug 15","Los Angeles Queens","Boston Hunters","6:30 PM"],
+["Sun, Aug 16","Boston Hunters","New York Heights","6:30 PM"],
+["Wed, Aug 19","New York Heights","San Francisco Firebells","6:30 PM"],
+["Thu, Aug 20","New York Heights","Boston Hunters","6:30 PM"],
+["Fri, Aug 21","San Francisco Firebells","Los Angeles Queens","6:30 PM"],
+["Sat, Aug 22","San Francisco Firebells","Boston Hunters","1:00 PM"],
+["Sat, Aug 22","New York Heights","Los Angeles Queens","6:30 PM"],
+["Sun, Aug 23","Los Angeles Queens","Boston Hunters","6:30 PM"],
+["Wed, Aug 26","Boston Hunters","Los Angeles Queens","6:30 PM"],
+["Thu, Aug 27","Los Angeles Queens","New York Heights","6:30 PM"],
+["Fri, Aug 28","Boston Hunters","San Francisco Firebells","6:30 PM"],
+["Sat, Aug 29","New York Heights","Los Angeles Queens","6:30 PM"],
+["Sun, Aug 30","New York Heights","San Francisco Firebells","6:30 PM"],
+["Wed, Sep 2","San Francisco Firebells","Boston Hunters","6:30 PM"],
+["Thu, Sep 3","New York Heights","Los Angeles Queens","6:30 PM"],
+["Fri, Sep 4","San Francisco Firebells","New York Heights","6:30 PM"],
+["Sat, Sep 5","Los Angeles Queens","Boston Hunters","6:30 PM"],
+["Sun, Sep 6","Boston Hunters","San Francisco Firebells","6:30 PM"]
+];
+ 
+const FANTASY_WEEKS = [
+  {label:"Week 1 · Aug 1–9", pairs:[[0,7],[1,6],[2,5],[3,4]]},
+  {label:"Week 2 · Aug 12–16", pairs:[[0,6],[7,5],[1,4],[2,3]]},
+  {label:"Week 3 · Aug 19–23", pairs:[[0,5],[6,4],[7,3],[1,2]]},
+  {label:"Week 4 · Aug 26–30", pairs:[[0,4],[5,3],[6,2],[7,1]]},
+  {label:"Week 5 · Sep 2–6", pairs:[[0,3],[4,2],[5,1],[6,7]]}
+];
+ 
+const NUM_TEAMS = 8;
+const ROSTER_SIZE = 12;
+const DEFAULT_NAMES = ["Firebells Faithful","Hunter's Moon","Queens Court","Heights Above","W Squad","Diamond Dynasty","The Osprey Nest","Grand Slam Gals"];
+ 
+/* ---------------- STATE ---------------- */
+let state = {
+  teamNames: [...DEFAULT_NAMES],
+  rosters: Array.from({length:NUM_TEAMS},()=>[]),
+  draftedIds: [],
+  pickIndex: 0,
+  results: {}, // "weekIdx-pairIdx" -> teamIndex of winner
+  log: []
+};
+ 
+function draftOrder(round){ // snake
+  const base = [...Array(NUM_TEAMS).keys()];
+  return round % 2 === 0 ? base : [...base].reverse();
+}
+function pickToRoundSlot(pickIndex){
+  const round = Math.floor(pickIndex / NUM_TEAMS);
+  const slot = pickIndex % NUM_TEAMS;
+  const order = draftOrder(round);
+  return {round: round+1, teamIndex: order[slot]};
+}
+ 
+async function saveState(){
+  try{ await window.storage.set('wpbl-fantasy-state', JSON.stringify(state), true); }
+  catch(e){ console.error('save failed', e); }
+}
+async function loadState(){
+  try{
+    const r = await window.storage.get('wpbl-fantasy-state', true);
+    if(r && r.value) state = JSON.parse(r.value);
+  }catch(e){ /* no saved state yet */ }
+}
+ 
+/* ---------------- RENDER ---------------- */
+const TABS = ["Draft","Rosters","Schedule","Matchups"];
+let activeTab = "Draft";
+ 
+function renderTabs(){
+  const el = document.getElementById('tabs');
+  el.innerHTML = TABS.map(t=>`<button class="tab ${t===activeTab?'active':''}" data-tab="${t}">${t}</button>`).join('');
+  el.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab; render();});
+}
+ 
+function teamTag(code){
+  return `<span class="tag tag-${code}">${code}</span>`;
+}
+ 
+function renderDraft(){
+  const pool = PLAYERS.filter(p=>!state.draftedIds.includes(p.id));
+  const {round, teamIndex} = pickToRoundSlot(state.pickIndex);
+  const done = state.pickIndex >= NUM_TEAMS*ROSTER_SIZE;
+ 
+  let html = `<div class="panel">
+<h2>Draft Board</h2>
+<p class="desc">Snake draft · ${NUM_TEAMS} managers · ${ROSTER_SIZE} roster spots each. Click a player to draft them to whoever's on the clock. Rename your teams below — names save for everyone viewing this league.</p>
+ 
+    <div class="roster-grid" style="margin-bottom:16px;">
+    ${state.teamNames.map((n,i)=>`<div class="roster-card" style="padding:8px 12px;">
+<input class="team-name-input" data-idx="${i}" value="${n}" />
+<div class="footer-note">${state.rosters[i].length}/${ROSTER_SIZE} drafted</div>
+</div>`).join('')}
+</div>
+ 
+    ${done ? `<div class="clock"><div><div class="clock-label">Draft Complete</div><div class="onclock">All ${NUM_TEAMS*ROSTER_SIZE} roster spots are filled — head to Rosters.</div></div></div>`
+    : `<div class="clock">
+<div><div class="clock-label">On the clock</div><div class="onclock" style="color:var(--gold)">${state.teamNames[teamIndex]}</div></div>
+<div><div class="clock-label">Round</div><div class="clock-num">${round}</div></div>
+<div><div class="clock-label">Overall Pick</div><div class="clock-num">${state.pickIndex+1}</div></div>
+<div style="margin-left:auto;"><button class="btn ghost" id="resetDraft">Reset Draft</button></div>
+</div>`}
+ 
+    <div class="filters">
+<input type="text" id="searchPlayer" placeholder="Search player…">
+<select id="filterTeam"><option value="">All Real Teams</option>
+<option value="BOS">Boston Hunters</option><option value="SF">San Francisco Firebells</option>
+<option value="LA">Los Angeles Queens</option><option value="NY">New York Heights</option></select>
+<select id="filterPos"><option value="">All Positions</option>
+        ${[...new Set(PLAYERS.map(p=>p.pos))].sort().map(p=>`<option value="${p}">${p}</option>`).join('')}
+</select>
+</div>
+<div class="player-grid" id="playerGrid"></div>
+ 
+    <div class="draft-log">${state.log.slice().reverse().map(l=>`<div>${l}</div>`).join('') || '<div>No picks yet — the draft log will appear here.</div>'}</div>
+</div>`;
+  document.getElementById('main').innerHTML = html;
+ 
+  document.querySelectorAll('.team-name-input').forEach(inp=>{
+    inp.onchange = ()=>{ state.teamNames[inp.dataset.idx] = inp.value || DEFAULT_NAMES[inp.dataset.idx]; saveState(); };
+  });
+  const resetBtn = document.getElementById('resetDraft');
+  if(resetBtn) resetBtn.onclick = ()=>{
+    if(confirm('Reset the entire draft? This clears all rosters for everyone.')){
+      state.rosters = Array.from({length:NUM_TEAMS},()=>[]);
+      state.draftedIds = []; state.pickIndex = 0; state.log = [];
+      saveState(); render();
+    }
+  };
+ 
+  function drawGrid(){
+    const term = (document.getElementById('searchPlayer').value||'').toLowerCase();
+    const ft = document.getElementById('filterTeam').value;
+    const fp = document.getElementById('filterPos').value;
+    const filtered = pool.filter(p=>
+      p.name.toLowerCase().includes(term) &&
+      (!ft || p.team===ft) &&
+      (!fp || p.pos===fp)
+    );
+    const grid = document.getElementById('playerGrid');
+    grid.innerHTML = filtered.map(p=>`
+<div class="player-card" data-id="${p.id}">
+<div class="player-name">${p.name}</div>
+<div class="player-meta"><span>${p.pos}</span>${teamTag(p.team)}</div>
+</div>`).join('') || '<div class="empty-slot">No players match your filters.</div>';
+    grid.querySelectorAll('.player-card').forEach(c=>{
+      c.onclick = ()=>{
+        if(done) return;
+        const pid = c.dataset.id;
+        const player = PLAYERS.find(pp=>pp.id===pid);
+        state.rosters[teamIndex].push(pid);
+        state.draftedIds.push(pid);
+        state.log.push(`Rd ${round}, Pick ${state.pickIndex+1}: ${state.teamNames[teamIndex]} select ${player.name} (${player.pos}, ${player.team})`);
+        state.pickIndex++;
+        saveState(); render();
+      };
+    });
+  }
+  drawGrid();
+  document.getElementById('searchPlayer').oninput = drawGrid;
+  document.getElementById('filterTeam').onchange = drawGrid;
+  document.getElementById('filterPos').onchange = drawGrid;
+}
+ 
+function renderRosters(){
+  let html = `<div class="panel"><h2>Team Rosters</h2>
+<p class="desc">Each fantasy roster, filled in draft order.</p>
+<div class="roster-grid">
+  ${state.teamNames.map((n,i)=>{
+    const roster = state.rosters[i].map(pid=>PLAYERS.find(p=>p.id===pid));
+    const slots = Array.from({length:ROSTER_SIZE},(_,s)=>roster[s]);
+    return `<div class="roster-card">
+<h3>${n} <span class="footer-note">${roster.length}/${ROSTER_SIZE}</span></h3>
+<ul class="roster-list">
+      ${slots.map(p=>p ? `<li><span>${p.name}</span><span>${p.pos} ${teamTag(p.team)}</span></li>` : `<li style="color:var(--cream-dim); font-style:italic;">Empty</li>`).join('')}
+</ul>
+</div>`;
+  }).join('')}
+</div></div>`;
+  document.getElementById('main').innerHTML = html;
+}
+ 
+function renderSchedule(){
+  let html = `<div class="panel"><h2>WPBL Schedule</h2>
+<p class="desc">The real 2026 inaugural-season schedule — all 30 games at Robin Roberts Stadium. Dates, times &amp; opponents subject to change per the league.</p>
+<table><thead><tr><th>Date</th><th>Away</th><th></th><th>Home</th><th>Time</th></tr></thead><tbody>
+  ${SCHEDULE.map(g=>`<tr><td class="strong">${g[0]}</td><td>${g[1]}</td><td style="text-align:center;">@</td><td>${g[2]}</td><td>${g[3]}</td></tr>`).join('')}
+</tbody></table></div>`;
+  document.getElementById('main').innerHTML = html;
+}
+ 
+function renderMatchups(){
+  // standings
+  const wins = Array(NUM_TEAMS).fill(0), losses = Array(NUM_TEAMS).fill(0);
+  FANTASY_WEEKS.forEach((wk,wi)=>wk.pairs.forEach((pair,pi)=>{
+    const key = wi+'-'+pi;
+    const winner = state.results[key];
+    if(winner!==undefined){
+      wins[winner]++;
+      losses[pair[0]===winner?pair[1]:pair[0]]++;
+    }
+  }));
+  const standings = state.teamNames.map((n,i)=>({name:n, w:wins[i], l:losses[i], i}))
+    .sort((a,b)=> b.w-a.w || a.l-b.l);
+ 
+  let html = `<div class="panel"><h2>Weekly Matchups</h2>
+<p class="desc">Head-to-head fantasy matchups mapped to the real WPBL schedule weeks. Click a manager's name to mark them the winner once that week's real games are in.</p>
+  ${FANTASY_WEEKS.map((wk,wi)=>`
+<div class="week-block">
+<div class="week-title">${wk.label}</div>
+      ${wk.pairs.map((pair,pi)=>{
+        const key = wi+'-'+pi;
+        const winner = state.results[key];
+        return `<div class="matchup-row">
+<div class="mside ${winner===pair[0]?'winner':''}" data-key="${key}" data-w="${pair[0]}">${state.teamNames[pair[0]]}</div>
+<div class="vs">VS</div>
+<div class="mside right ${winner===pair[1]?'winner':''}" data-key="${key}" data-w="${pair[1]}">${state.teamNames[pair[1]]}</div>
+</div>`;
+      }).join('')}
+</div>`).join('')}
+</div>
+ 
+  <div class="panel"><h2>Standings</h2>
+<table><thead><tr><th>Manager</th><th>W</th><th>L</th></tr></thead><tbody>
+  ${standings.map(s=>`<tr><td class="strong">${s.name}</td><td>${s.w}</td><td>${s.l}</td></tr>`).join('')}
+</tbody></table></div>`;
+ 
+  document.getElementById('main').innerHTML = html;
+  document.querySelectorAll('.mside').forEach(el=>{
+    el.onclick = ()=>{
+      state.results[el.dataset.key] = parseInt(el.dataset.w);
+      saveState(); render();
+    };
+  });
+}
+ 
+function render(){
+  renderTabs();
+  if(activeTab==="Draft") renderDraft();
+  else if(activeTab==="Rosters") renderRosters();
+  else if(activeTab==="Schedule") renderSchedule();
+  else if(activeTab==="Matchups") renderMatchups();
+}
+ 
+(async function init(){
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>
